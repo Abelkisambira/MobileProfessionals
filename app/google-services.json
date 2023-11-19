@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "580535513578",
+    "firebase_url": "https://mobile-employer-default-rtdb.firebaseio.com",
+    "project_id": "mobile-employer",
+    "storage_bucket": "mobile-employer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580535513578:android:b800c405ea219a84988293",
+        "android_client_info": {
+          "package_name": "com.innovation.mobileemployer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp6UUJZ1Otdls0dnzJSIhP8t-WVpyn2gs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580535513578:android:447ff011b2bdc30d988293",
+        "android_client_info": {
+          "package_name": "com.innovations.mobileprofessionals"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp6UUJZ1Otdls0dnzJSIhP8t-WVpyn2gs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
