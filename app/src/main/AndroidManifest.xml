@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,19 +17,36 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
-            android:name="com.innovations.mobileprofessionals.Nav"
+            android:name=".FeedDetails"
             android:exported="false" />
         <activity
-            android:name="com.innovations.mobileprofessionals.ForgotPassword"
+            android:name=".Loction_Activity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyASpoAwQ1c-UYucjf36qgKpPidY2vA6SlY" />
+
+        <activity
+            android:name=".Loction_Activity"
             android:exported="false" />
         <activity
-            android:name="com.innovations.mobileprofessionals.Register"
+            android:name=".Service"
             android:exported="false" />
         <activity
-            android:name="com.innovations.mobileprofessionals.Login"
+            android:name=".Nav"
             android:exported="false" />
         <activity
-            android:name="com.innovations.mobileprofessionals.MainActivity"
+            android:name=".ForgotPassword"
+            android:exported="false" />
+        <activity
+            android:name=".Register"
+            android:exported="false" />
+        <activity
+            android:name=".Login"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

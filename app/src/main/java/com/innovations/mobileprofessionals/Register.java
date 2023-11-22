@@ -93,7 +93,7 @@ public class Register extends AppCompatActivity {
                                         Toast.makeText(Register.this, "Account Created.",
                                                 Toast.LENGTH_SHORT).show();
                                         dbRef.push().setValue(professional);
-                                        Intent intent = new Intent(Register.this, Login.class);
+                                        Intent intent = new Intent(Register.this, Service.class);
                                         startActivity(intent);
                                         finish();
                                         return;

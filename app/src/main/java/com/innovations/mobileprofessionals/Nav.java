@@ -22,8 +22,6 @@ public class Nav extends AppCompatActivity {
                 replaceFragment(new Home());
             } else if (itemID == R.id.book) {
                 replaceFragment(new MyBookings());
-            } else if (itemID == R.id.services) {
-                replaceFragment(new Chats());
             } else if (itemID == R.id.account) {
                 replaceFragment(new Accoount());
             }
