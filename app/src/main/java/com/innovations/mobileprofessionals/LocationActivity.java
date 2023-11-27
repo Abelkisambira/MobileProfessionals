@@ -1,5 +1,7 @@
 package com.innovations.mobileprofessionals;
 
+import static com.innovations.mobileprofessionals.FeedDetails.LOCATION_ACTIVITY_REQUEST_CODE;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -38,7 +40,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         // Initialize FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Check and request location permission if not granted
+        // Check and request location permission
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
@@ -46,6 +48,7 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, refresh the map
@@ -53,6 +56,8 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -74,8 +79,14 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
+    // Add this variable to store the selected location
+    private LatLng selectedLocation;
+
     @Override
     public void onMapClick(LatLng latLng) {
+        // Save the selected location
+        selectedLocation = latLng;
+
         // Add a marker at the clicked location
         mMap.addMarker(new MarkerOptions().position(latLng).title("New Marker"));
     }
@@ -86,14 +97,24 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         double latitude = marker.getPosition().latitude;
         double longitude = marker.getPosition().longitude;
 
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("latitude", latitude);
-        resultIntent.putExtra("longitude", longitude);
-        setResult(RESULT_OK, resultIntent);
-        finish();
+        // Save the selected location
+        selectedLocation = new LatLng(latitude, longitude);
+
+        // Start the FeedDetails activity with latitude and longitude
+        Intent intent = new Intent(LocationActivity.this, FeedDetails.class);
+        intent.putExtra("latitude", latitude);
+        intent.putExtra("longitude", longitude);
+        startActivityForResult(intent, LOCATION_ACTIVITY_REQUEST_CODE);
 
         return true;
     }
+
+    // Add this method to get the selected location in the LocationActivity
+    public LatLng getSelectedLocation() {
+        return selectedLocation;
+    }
+
+
 
     private void refreshMap() {
         // Refresh the map when the location permission is granted

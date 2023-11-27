@@ -19,17 +19,14 @@
         <activity
             android:name=".FeedDetails"
             android:exported="false" />
-        <activity
-            android:name=".Loction_Activity"
-            android:exported="false" />
+        <activity android:name=".LocationActivity"
+            android:exported="false"
+            />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyASpoAwQ1c-UYucjf36qgKpPidY2vA6SlY" />
 
-        <activity
-            android:name=".Loction_Activity"
-            android:exported="false" />
         <activity
             android:name=".Service"
             android:exported="false" />

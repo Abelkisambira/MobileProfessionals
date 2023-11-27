@@ -2,11 +2,14 @@ package com.innovations.mobileprofessionals;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -14,16 +17,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-//import com.innovations.mobileprofessionals.model.Category;
-//import com.innovations.mobileprofessionals.model.ServiceProviders;
-//import com.innovations.mobileprofessionals.model.Subcategory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FeedDetails extends AppCompatActivity {
 
-    private EditText descEditText, phoneEditText, locationEditText;
+    private EditText descEditText, phoneEditText;
+    private TextView locationEditText;
     private Spinner categorySpinner, categorySpinner2;
     private Button saveButton;
 
@@ -34,7 +35,7 @@ public class FeedDetails extends AppCompatActivity {
     private List<Category> categoriesList = new ArrayList<>();
     private List<Subcategory> subcategoriesList = new ArrayList<>();
 
-    private static final int LOCATION_ACTIVITY_REQUEST_CODE = 1;
+    public static final int LOCATION_ACTIVITY_REQUEST_CODE = 1;
     private double selectedLatitude, selectedLongitude;
 
     @Override
@@ -53,11 +54,15 @@ public class FeedDetails extends AppCompatActivity {
         // Initialize Firebase
         db = FirebaseFirestore.getInstance();
 
+        // Set up the spinners
+        setupSpinners();
+
         // Set click listener for the save button
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveServiceProvider();
+                Intent intent = new Intent(FeedDetails.this, Nav.class);
             }
         });
 
@@ -65,8 +70,27 @@ public class FeedDetails extends AppCompatActivity {
         getCategoriesFromFirestore();
     }
 
+    private void setupSpinners() {
+        // Set up the Category Spinner
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // When a category is selected, update the Subcategory Spinner
+                updateSubcategorySpinner(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing here
+            }
+        });
+    }
+
+
+
     private void getCategoriesFromFirestore() {
-        FirebaseFirestore.getInstance().collection("categories")
+        // Add a listener to the Firestore collection to retrieve categories and subcategories
+        db.collection("categories")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     // Clear existing categories and subcategories
@@ -84,32 +108,14 @@ public class FeedDetails extends AppCompatActivity {
 
                     // Populate the Category Spinner with category names
                     populateCategorySpinner();
-
-                    // Populate the Subcategory Spinner with subcategory names
-                    populateSubcategorySpinner();
                 })
                 .addOnFailureListener(e -> {
                     // Handle failure
-                    Toast.makeText(this, "Error retrieving categories", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error retrieving categories: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("FeedDetails", "Error retrieving categories", e);
                 });
     }
 
-    private void populateSubcategorySpinner() {
-        // Extract subcategory names from the subcategoriesList
-        List<String> subcategoryNames = new ArrayList<>();
-        for (Subcategory subcategory : subcategoriesList) {
-            subcategoryNames.add(subcategory.getName());
-        }
-
-        // Create an ArrayAdapter using the subcategory names and a default spinner layout
-        ArrayAdapter<String> subcategoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, subcategoryNames);
-
-        // Specify the layout to use when the list of choices appears
-        subcategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply the adapter to the Subcategory Spinner
-        categorySpinner2.setAdapter(subcategoryAdapter);
-    }
 
     private void populateCategorySpinner() {
         try {
@@ -134,6 +140,39 @@ public class FeedDetails extends AppCompatActivity {
             Toast.makeText(this, "Error populating category spinner", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void updateSubcategorySpinner(int selectedCategoryPosition) {
+        // Extract subcategory names based on the selected category
+        Category selectedCategory = categoriesList.get(selectedCategoryPosition);
+
+        // Log the selected category's name and position for debugging
+        Log.d("FeedDetails", "Selected Category: " + selectedCategory.getName() + ", Position: " + selectedCategoryPosition);
+
+        List<Subcategory> subcategories = selectedCategory.getSubcategories();
+
+        // Extract subcategory names from the list
+        List<String> subcategoryNames = new ArrayList<>();
+        for (Subcategory subcategory : subcategories) {
+            subcategoryNames.add(subcategory.getName());
+        }
+
+        // Log the size of subcategoryNames for debugging
+        Log.d("FeedDetails", "Subcategory Names Size: " + subcategoryNames.size());
+
+        // Create an ArrayAdapter using the subcategory names and a default spinner layout
+        ArrayAdapter<String> subcategoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, subcategoryNames);
+
+        // Specify the layout to use when the list of choices appears
+        subcategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Apply the adapter to the Subcategory Spinner
+        categorySpinner2.setAdapter(subcategoryAdapter);
+
+        // Log whether the adapter is set for debugging
+        Log.d("FeedDetails", "Subcategory Spinner Adapter Set: " + (categorySpinner2.getAdapter() != null));
+    }
+
+
 
     private void saveServiceProvider() {
         // Get data from UI elements
@@ -170,7 +209,6 @@ public class FeedDetails extends AppCompatActivity {
                 });
     }
 
-    // Add onActivityResult method to handle the result from LocationActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -180,10 +218,11 @@ public class FeedDetails extends AppCompatActivity {
                 selectedLatitude = data.getDoubleExtra("latitude", 0.0);
                 selectedLongitude = data.getDoubleExtra("longitude", 0.0);
 
-                // Update locationEditText with selected location
+                // Update UI with the latitude and longitude
                 String locationText = "Latitude: " + selectedLatitude + ", Longitude: " + selectedLongitude;
                 locationEditText.setText(locationText);
             }
         }
     }
+
 }
