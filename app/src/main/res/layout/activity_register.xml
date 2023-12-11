@@ -110,15 +110,36 @@
                     android:layout_marginLeft="8dp"
 
                     />
-                <EditText
-                    android:id="@+id/phone"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="8dp"/>
+                    android:orientation="horizontal"
+                    android:paddingTop="10dp"
+                    >
+                <com.hbb20.CountryCodePicker
+                    android:id="@+id/phone"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="10dp"
+                    app:ccp_defaultPhoneCode="256"
+                    app:ccp_showNameCode="false"/>
+                <EditText
+                    android:id="@+id/phoneholder"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="2"
+                    android:background="@null"
+                    android:hint="782 345689"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:textSize="16sp"
+                    android:maxLength="9"
+                    android:textStyle="bold"/>
 
-
+                </LinearLayout>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -132,6 +153,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="20dp"
+                    android:inputType="textPassword"
                     android:layout_marginRight="20dp"
                     android:layout_marginLeft="8dp"/>
 

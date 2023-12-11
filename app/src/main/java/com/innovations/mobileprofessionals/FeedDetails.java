@@ -1,82 +1,106 @@
 package com.innovations.mobileprofessionals;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FeedDetails extends AppCompatActivity {
 
-    private EditText descEditText, phoneEditText;
-    private TextView locationEditText;
-    private Spinner categorySpinner, categorySpinner2;
-    private Button saveButton;
-
-    // Firebase
+    private EditText descEditText, locationEditText;
+    private Spinner categorySpinner;
+    private LinearLayout checkboxLayout;
+    private CountryCodePicker format;
     private FirebaseFirestore db;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
 
-    // List to store retrieved categories
     private List<Category> categoriesList = new ArrayList<>();
-    private List<Subcategory> subcategoriesList = new ArrayList<>();
+    private Uri selectedImageUri;
 
-    public static final int LOCATION_ACTIVITY_REQUEST_CODE = 1;
+    public static final int LOCATION_ACTIVITY_REQUEST_CODE = 2;
     private double selectedLatitude, selectedLongitude;
+    private String locationDescription;
+    // Request code for picking a location
+    private static final int LOCATION_PICK_REQUEST_CODE = 3;
+    private static final int IMAGE_PICK_REQUEST_CODE = 4;
+    private ImageView imageView;
+    private Button save;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed_details);
 
-        // Initialize UI elements
         descEditText = findViewById(R.id.desc);
         categorySpinner = findViewById(R.id.categorySpinner);
-        categorySpinner2 = findViewById(R.id.categorySpinner2);
-        phoneEditText = findViewById(R.id.phoneholder);
-        saveButton = findViewById(R.id.service);
+        checkboxLayout = findViewById(R.id.checkBoxLayout);
         locationEditText = findViewById(R.id.location);
+        imageView = findViewById(R.id.imageView);
+        save = findViewById(R.id.save);
 
-        // Initialize Firebase
-        db = FirebaseFirestore.getInstance();
-
-        // Set up the spinners
-        setupSpinners();
-
-        // Set click listener for the save button
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                saveServiceProvider();
-                Intent intent = new Intent(FeedDetails.this, Nav.class);
+            public void onClick(View v) {
+                uploadImage();
+                Intent intent = new Intent(FeedDetails.this, Login.class);
+                startActivity(intent);
+
             }
         });
 
-        // Retrieve categories from Firestore
+        db = FirebaseFirestore.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
+
+        // Initialize the pick location button
+        findViewById(R.id.pickLocationButton).setOnClickListener(v -> {
+            // Start the LocationActivity to pick a location
+            Intent intent = new Intent(FeedDetails.this, LocationActivity.class);
+            startActivityForResult(intent, LOCATION_PICK_REQUEST_CODE);
+        });
+
+        // Initialize the upload image button
+        findViewById(R.id.uploadButton).setOnClickListener(v -> pickImage());
+
+        setupSpinners();
         getCategoriesFromFirestore();
     }
 
     private void setupSpinners() {
-        // Set up the Category Spinner
         categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                // When a category is selected, update the Subcategory Spinner
-                updateSubcategorySpinner(position);
+                updateSubcategoryCheckboxes(position);
             }
 
             @Override
@@ -86,40 +110,48 @@ public class FeedDetails extends AppCompatActivity {
         });
     }
 
-
-
     private void getCategoriesFromFirestore() {
-        // Add a listener to the Firestore collection to retrieve categories and subcategories
         db.collection("categories")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // Clear existing categories and subcategories
                     categoriesList.clear();
-                    subcategoriesList.clear();
+                    List<Task<?>> tasks = new ArrayList<>();
 
-                    // Populate the categoriesList and subcategoriesList with the retrieved data
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Category category = document.toObject(Category.class);
                         categoriesList.add(category);
 
-                        // Add subcategories to the list
-                        subcategoriesList.addAll(category.getSubcategories());
+                        Task<List<Subcategory>> subcategoryTask = db.collection("categories").document(category.getName())
+                                .collection("subcategories")
+                                .get()
+                                .continueWith(subcategoryTaskContinuation -> {
+                                    List<Subcategory> subcategoriesList = new ArrayList<>();
+                                    for (QueryDocumentSnapshot subcategoryDocument : subcategoryTaskContinuation.getResult()) {
+                                        Subcategory subcategory = subcategoryDocument.toObject(Subcategory.class);
+                                        subcategoriesList.add(subcategory);
+                                    }
+                                    category.setSubcategories(subcategoriesList);
+                                    return subcategoriesList;
+                                });
+
+                        tasks.add(subcategoryTask);
                     }
 
-                    // Populate the Category Spinner with category names
-                    populateCategorySpinner();
-                })
-                .addOnFailureListener(e -> {
-                    // Handle failure
-                    Toast.makeText(this, "Error retrieving categories: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e("FeedDetails", "Error retrieving categories", e);
+                    Tasks.whenAllSuccess(tasks)
+                            .addOnSuccessListener(subcategoriesLists -> {
+                                // All subcategory tasks completed successfully
+                                // Now, you can call populateCategorySpinner()
+                                populateCategorySpinner();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Handle failure
+                                Toast.makeText(this, "Error retrieving subcategories", Toast.LENGTH_SHORT).show();
+                            });
                 });
     }
 
-
     private void populateCategorySpinner() {
         try {
-            // Extract category names from the categoriesList
             List<String> categoryNames = new ArrayList<>();
             for (Category category : categoriesList) {
                 if (category != null && category.getName() != null) {
@@ -127,13 +159,8 @@ public class FeedDetails extends AppCompatActivity {
                 }
             }
 
-            // Create an ArrayAdapter using the category names and a default spinner layout
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryNames);
-
-            // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-            // Apply the adapter to the spinner
             categorySpinner.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,88 +168,149 @@ public class FeedDetails extends AppCompatActivity {
         }
     }
 
-    private void updateSubcategorySpinner(int selectedCategoryPosition) {
-        // Extract subcategory names based on the selected category
+    private void updateSubcategoryCheckboxes(int selectedCategoryPosition) {
         Category selectedCategory = categoriesList.get(selectedCategoryPosition);
-
-        // Log the selected category's name and position for debugging
-        Log.d("FeedDetails", "Selected Category: " + selectedCategory.getName() + ", Position: " + selectedCategoryPosition);
 
         List<Subcategory> subcategories = selectedCategory.getSubcategories();
 
-        // Extract subcategory names from the list
-        List<String> subcategoryNames = new ArrayList<>();
+        checkboxLayout.removeAllViews();
+
         for (Subcategory subcategory : subcategories) {
-            subcategoryNames.add(subcategory.getName());
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText(subcategory.getName());
+            checkboxLayout.addView(checkBox);
         }
+    }
 
-        // Log the size of subcategoryNames for debugging
-        Log.d("FeedDetails", "Subcategory Names Size: " + subcategoryNames.size());
+    private void pickImage() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, IMAGE_PICK_REQUEST_CODE);
+    }
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    String uid = user.getUid();
+    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Professionals").child(uid);
 
-        // Create an ArrayAdapter using the subcategory names and a default spinner layout
-        ArrayAdapter<String> subcategoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, subcategoryNames);
 
-        // Specify the layout to use when the list of choices appears
-        subcategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    private void saveServiceProvider(String imageUrl, String desc, String selectedCategory, List<String> selectedSubcategories) {
+        // Create a reference to the user's node in the Realtime Database based on the UID
 
-        // Apply the adapter to the Subcategory Spinner
-        categorySpinner2.setAdapter(subcategoryAdapter);
 
-        // Log whether the adapter is set for debugging
-        Log.d("FeedDetails", "Subcategory Spinner Adapter Set: " + (categorySpinner2.getAdapter() != null));
+        // Add/update the necessary details in the user's node
+        Map<String, Object> professionalData = new HashMap<>();
+        professionalData.put("imageUrl", imageUrl);
+        professionalData.put("desc", desc);
+        professionalData.put("category", selectedCategory);
+        professionalData.put("subcategories", selectedSubcategories);
+
+        userRef.updateChildren(professionalData)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // The data has been successfully updated in the user's node
+                        Toast.makeText(this, "Service provider details saved successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(FeedDetails.this, Login.class);
+                        startActivity(intent);
+                    } else {
+                        // Handle the failure
+                        Toast.makeText(this, "Error saving service provider details", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void uploadImage() {
+        if (selectedImageUri != null) {
+            if (user != null ) {
+
+
+                // Create a unique filename based on the timestamp
+                String timestamp = String.valueOf(System.currentTimeMillis());
+                String imageName = "image_" + timestamp + ".jpg";
+                imageName = imageName.replace(".", ",");
+                // Create a reference to the image URL using the dynamic filename
+                DatabaseReference imageUrlRef = userRef.child(imageName);
+
+                // Upload the image URL to Realtime Database
+                imageUrlRef.setValue(selectedImageUri.toString())
+                        .addOnSuccessListener(aVoid -> {
+                            // Image URL uploaded successfully
+                            String imageUrl = String.valueOf(selectedImageUri);
+                            // You can save the imageUrl or display it in an ImageView
+                            // For example:
+                            Glide.with(this).load(imageUrl).into(imageView);
+
+                            // Now, save the imageUrl along with other details in the Realtime Database
+                            saveServiceProvider(imageUrl, descEditText.getText().toString().trim(),
+                                    categorySpinner.getSelectedItem().toString().trim(),
+                                    getSelectedSubcategories());
+                        })
+                        .addOnFailureListener(e -> {
+                            // Handle the failure to upload image URL
+                            Log.e("FeedDetails", "Error uploading image URL", e);
+                            Toast.makeText(this, "Error uploading image URL", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                // Handle the case where the user is not authenticated
+                Log.d("UploadImage", "User not authenticated");
+                Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
-
-    private void saveServiceProvider() {
-        // Get data from UI elements
-        String desc = descEditText.getText().toString().trim();
-        String category = categorySpinner.getSelectedItem().toString().trim();
-        String speciality = categorySpinner2.getSelectedItem().toString().trim();
-        String phoneNumber = phoneEditText.getText().toString().trim();
-
-        // Validate data
-        if (desc.isEmpty() || category.isEmpty() || speciality.isEmpty() || phoneNumber.isEmpty()) {
-            // Display an error message if any field is empty
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-            return;
+    // Helper method to get the selected subcategories
+    private List<String> getSelectedSubcategories() {
+        List<String> selectedSubcategories = new ArrayList<>();
+        for (int i = 0; i < checkboxLayout.getChildCount(); i++) {
+            View view = checkboxLayout.getChildAt(i);
+            if (view instanceof CheckBox) {
+                CheckBox checkBox = (CheckBox) view;
+                if (checkBox.isChecked()) {
+                    selectedSubcategories.add(checkBox.getText().toString());
+                }
+            }
         }
-
-        // Validate phone number (assuming it should be numeric and have a specific length)
-        if (!phoneNumber.matches("\\d{9}")) {
-            // Display an error message if the phone number is not valid
-            Toast.makeText(this, "Please enter a valid 9-digit phone number", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Create a new service provider object
-        ServiceProviders serviceProvider = new ServiceProviders(desc, category, speciality, phoneNumber, selectedLatitude, selectedLongitude);
-
-        // Add the service provider to Firestore
-        db.collection("service_providers")
-                .add(serviceProvider)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Service provider saved successfully", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error saving service provider", Toast.LENGTH_SHORT).show();
-                });
+        return selectedSubcategories;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == LOCATION_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            if (data != null && data.hasExtra("latitude") && data.hasExtra("longitude")) {
-                selectedLatitude = data.getDoubleExtra("latitude", 0.0);
-                selectedLongitude = data.getDoubleExtra("longitude", 0.0);
+        if (requestCode == LOCATION_PICK_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            double latitude = data.getDoubleExtra("latitude", 0);
+            double longitude = data.getDoubleExtra("longitude", 0);
+            locationDescription = data.getStringExtra("locationDescription");
 
-                // Update UI with the latitude and longitude
-                String locationText = "Latitude: " + selectedLatitude + ", Longitude: " + selectedLongitude;
-                locationEditText.setText(locationText);
+            selectedLatitude = latitude;
+            selectedLongitude = longitude;
+            String locationText = String.format("%s, %s, %s", selectedLatitude, selectedLongitude, locationDescription);
+            locationEditText.setText(locationText);
+        }
+
+        if (requestCode == IMAGE_PICK_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            // Get the selected image URI
+            selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                // You can load and display the image using Glide if needed
+                Glide.with(this).load(selectedImageUri).into(imageView);
+            } else {
+                Toast.makeText(this, "Failed to get image URI", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // Prepare the result data
+        super.onBackPressed();
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("latitude", selectedLatitude);
+        resultIntent.putExtra("longitude", selectedLongitude);
+        resultIntent.putExtra("locationDescription", locationDescription);
+
+        // Set the result and finish the activity
+        setResult(RESULT_OK, resultIntent);
+        finish();
+    }
 }

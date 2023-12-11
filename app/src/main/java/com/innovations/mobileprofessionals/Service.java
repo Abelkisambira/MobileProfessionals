@@ -20,7 +20,7 @@ public class Service extends AppCompatActivity {
         Service.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Service.this, LocationActivity.class);
+                Intent intent = new Intent(Service.this, FeedDetails.class);
                 startActivity(intent);
             }
         });

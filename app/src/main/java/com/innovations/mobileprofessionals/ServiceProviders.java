@@ -1,7 +1,7 @@
 package com.innovations.mobileprofessionals;
 
 public class ServiceProviders {
-
+    private String imageUrl;
     private String description;
     private String category;
     private String speciality;
@@ -9,18 +9,19 @@ public class ServiceProviders {
     private double latitude;
     private double longitude;
 
-    public ServiceProviders() {
-        // Default constructor required for Firestore
+    public ServiceProviders(String desc, String category, String phoneNumber, double selectedLatitude, double selectedLongitude, String imageUrl) {
     }
 
-    public ServiceProviders(String description, String category, String speciality, String phoneNumber, double latitude,double longitude) {
+    public ServiceProviders(String description, String category, String speciality, String phoneNumber, double latitude, double longitude, String imageUrl) {
+        this.imageUrl = imageUrl;
         this.description = description;
         this.category = category;
         this.speciality = speciality;
         this.phoneNumber = phoneNumber;
-        this.latitude=latitude;
-        this.longitude=longitude;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
+
 
     public String getDescription() {
         return description;
@@ -69,5 +70,12 @@ public class ServiceProviders {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-}
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+}

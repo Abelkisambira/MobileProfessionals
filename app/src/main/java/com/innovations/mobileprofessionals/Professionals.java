@@ -1,6 +1,7 @@
 package com.innovations.mobileprofessionals;
 
 public class Professionals {
+    private String uid; // New field to store UID
     private String username;
     private String email;
     private String phone;
@@ -9,11 +10,20 @@ public class Professionals {
     public Professionals() {
     }
 
-    public Professionals(String username, String email, String phone, String password) {
+    public Professionals(String uid, String username, String email, String phone, String password) {
+        this.uid = uid;
         this.username = username;
         this.email = email;
         this.phone = phone;
         this.password = password;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUsername() {

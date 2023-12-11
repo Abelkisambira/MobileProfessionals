@@ -5,9 +5,14 @@ import static com.innovations.mobileprofessionals.FeedDetails.LOCATION_ACTIVITY_
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -20,13 +25,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 public class LocationActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int LOCATION_ACTIVITY_REQUEST_CODE = 2;
+    private static final int LOCATION_PICK_REQUEST_CODE = 3;
+
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
+
+    private CardView cardView;
+    private TextView descriptionTextView, fullAddressTextView;
+    private EditText locationDescriptionEditText, locationEditText;
+
+    private LatLng selectedLocation;
+    private Button pickHereButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +54,41 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         // Initialize FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // Initialize UI elements
+        cardView = findViewById(R.id.cardView);
+        descriptionTextView = findViewById(R.id.descriptionTextView);
+        fullAddressTextView = findViewById(R.id.fullAddressTextView);
+        locationDescriptionEditText = findViewById(R.id.locationDescriptionEditText);
+        locationEditText = findViewById(R.id.locationEditText);
+
+        // Initialize the "Pick Here" button
+        pickHereButton = findViewById(R.id.pickHereButton);
+        pickHereButton.setOnClickListener(v -> {
+                    // Save data and navigate to the next activity
+                    saveAndNavigate();
+                });
+
         // Check and request location permission
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+    private void saveAndNavigate() {
+        if (selectedLocation != null) {
+            // Save data (e.g., location description) to be passed to the next activity
+            String locationDescription = locationDescriptionEditText.getText().toString().trim();
+
+
+            // Start the FeedDetails activity with latitude, longitude, and location description
+            Intent resultintent = new Intent();
+
+            resultintent.putExtra("latitude", selectedLocation.latitude);
+            resultintent.putExtra("longitude", selectedLocation.longitude);
+            resultintent.putExtra("locationDescription", locationDescription);
+            setResult(RESULT_OK,resultintent);
+            finish();
+
+
         }
     }
 
@@ -56,8 +102,6 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     }
-
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -79,9 +123,6 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
-    // Add this variable to store the selected location
-    private LatLng selectedLocation;
-
     @Override
     public void onMapClick(LatLng latLng) {
         // Save the selected location
@@ -89,6 +130,9 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
 
         // Add a marker at the clicked location
         mMap.addMarker(new MarkerOptions().position(latLng).title("New Marker"));
+
+        // Show the CardView with location details
+        showLocationDetailsCardView();
     }
 
     @Override
@@ -100,21 +144,34 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
         // Save the selected location
         selectedLocation = new LatLng(latitude, longitude);
 
-        // Start the FeedDetails activity with latitude and longitude
-        Intent intent = new Intent(LocationActivity.this, FeedDetails.class);
-        intent.putExtra("latitude", latitude);
-        intent.putExtra("longitude", longitude);
-        startActivityForResult(intent, LOCATION_ACTIVITY_REQUEST_CODE);
+        // Show the CardView with location details
+        showLocationDetailsCardView();
 
         return true;
     }
 
-    // Add this method to get the selected location in the LocationActivity
-    public LatLng getSelectedLocation() {
-        return selectedLocation;
+    private void showLocationDetailsCardView() {
+        if (selectedLocation != null) {
+            // Show the CardView
+            cardView.setVisibility(View.VISIBLE);
+
+            // Update UI elements with selected location details
+            locationEditText.setText(String.format("%s, %s", selectedLocation.latitude, selectedLocation.longitude));
+
+            // Set fullAddressEditText as non-editable
+            locationEditText.setFocusable(false);
+            locationEditText.setFocusableInTouchMode(false);
+            locationEditText.setClickable(false);
+        }
     }
-
-
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == LOCATION_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+//            // Handle the result from the FeedDetails activity if needed
+//        }
+//    }
 
     private void refreshMap() {
         // Refresh the map when the location permission is granted

@@ -23,11 +23,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 
 public class Register extends AppCompatActivity {
     Toolbar backTool;
@@ -35,28 +30,25 @@ public class Register extends AppCompatActivity {
 
     DatabaseReference dbRef;
 
-    EditText name,email,phone,password;
+    EditText name, email, phone, password;
     TextView backToLog;
     FirebaseAuth mAuth;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        mAuth= FirebaseAuth.getInstance();
-        backToLog=findViewById(R.id.backTolog);
+        mAuth = FirebaseAuth.getInstance();
+        backToLog = findViewById(R.id.backTolog);
 
-        registerBtn=findViewById(R.id.register);
-        name=findViewById(R.id.fullname);
-        email=findViewById(R.id.email);
-        phone=findViewById(R.id.phone);
-        password=findViewById(R.id.password);
+        registerBtn = findViewById(R.id.register);
+        name = findViewById(R.id.fullname);
+        email = findViewById(R.id.email);
+        phone = findViewById(R.id.phoneholder);
+        password = findViewById(R.id.password);
 
-        dbRef = FirebaseDatabase.getInstance().getReference().child("Professionals");
+        dbRef = FirebaseDatabase.getInstance().getReference("Professionals");
 
         backToLog.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,33 +62,39 @@ public class Register extends AppCompatActivity {
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username=name.getText().toString();
-                String Email=email.getText().toString();
-                String Phone=phone.getText().toString();
-                String Password=password.getText().toString();
-                Professionals professional=new Professionals(username,Email,Phone,Password);
+                String username = name.getText().toString();
+                String Email = email.getText().toString();
+                String Phone = phone.getText().toString();
+                String Password = password.getText().toString();
 
-
-                if(TextUtils.isEmpty(username) || TextUtils.isEmpty(Email) || TextUtils.isEmpty(Phone) || TextUtils.isEmpty(Password)){
+                if (TextUtils.isEmpty(username) || TextUtils.isEmpty(Email) || TextUtils.isEmpty(Phone) || TextUtils.isEmpty(Password)) {
                     Toast.makeText(Register.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                     return;
 
-                }
-                else {
-
-
+                } else {
                     mAuth.createUserWithEmailAndPassword(Email, Password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(Register.this, "Account Created.",
-                                                Toast.LENGTH_SHORT).show();
-                                        dbRef.push().setValue(professional);
-                                        Intent intent = new Intent(Register.this, Service.class);
-                                        startActivity(intent);
-                                        finish();
-                                        return;
+                                        FirebaseUser user = mAuth.getCurrentUser();
+                                        if (user != null) {
+                                            String uid = user.getUid();
+                                            Toast.makeText(Register.this, "Account Created.",
+                                                    Toast.LENGTH_SHORT).show();
+                                            Professionals professional = new Professionals(uid,username, Email, Phone, Password);
+
+                                            // Set the UID for the professional
+                                            professional.setUid(uid);
+
+                                            // Store professional data in the Realtime Database under UID
+                                            dbRef.child(uid).setValue(professional);
+
+                                            Intent intent = new Intent(Register.this, Service.class);
+                                            startActivity(intent);
+                                            finish();
+                                            return;
+                                        }
                                     } else {
                                         // If sign in fails, display a message to the user.
                                         Toast.makeText(Register.this, "Authentication failed.",
@@ -105,14 +103,10 @@ public class Register extends AppCompatActivity {
                                 }
                             });
                 }
-
-
-
             }
-
         });
 
-        backTool=findViewById(R.id.back);
+        backTool = findViewById(R.id.back);
         setSupportActionBar(backTool);
 
         // Enable the back arrow
