@@ -4,6 +4,8 @@ import static com.innovations.mobileprofessionals.FeedDetails.LOCATION_ACTIVITY_
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +27,11 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class LocationActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -75,22 +82,35 @@ public class LocationActivity extends AppCompatActivity implements OnMapReadyCal
     }
     private void saveAndNavigate() {
         if (selectedLocation != null) {
-            // Save data (e.g., location description) to be passed to the next activity
             String locationDescription = locationDescriptionEditText.getText().toString().trim();
 
+            // Get the address from the latitude and longitude using geocoding
+            String address = getAddressFromLocation(selectedLocation.latitude, selectedLocation.longitude);
 
-            // Start the FeedDetails activity with latitude, longitude, and location description
-            Intent resultintent = new Intent();
-
-            resultintent.putExtra("latitude", selectedLocation.latitude);
-            resultintent.putExtra("longitude", selectedLocation.longitude);
-            resultintent.putExtra("locationDescription", locationDescription);
-            setResult(RESULT_OK,resultintent);
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("latitude", selectedLocation.latitude);
+            resultIntent.putExtra("longitude", selectedLocation.longitude);
+            resultIntent.putExtra("locationDescription", address);
+            setResult(RESULT_OK, resultIntent);
             finish();
-
-
         }
     }
+
+    private String getAddressFromLocation(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && addresses.size() > 0) {
+                Address address = addresses.get(0);
+                // Format the address as needed (you can customize this based on your requirements)
+                return address.getAddressLine(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ""; // Return an empty string if unable to get the address
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

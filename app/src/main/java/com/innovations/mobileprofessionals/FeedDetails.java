@@ -1,6 +1,7 @@
 package com.innovations.mobileprofessionals;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Task;
@@ -46,6 +49,7 @@ public class FeedDetails extends AppCompatActivity {
 
     private List<Category> categoriesList = new ArrayList<>();
     private Uri selectedImageUri;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     public static final int LOCATION_ACTIVITY_REQUEST_CODE = 2;
     private double selectedLatitude, selectedLongitude;
@@ -94,6 +98,10 @@ public class FeedDetails extends AppCompatActivity {
 
         setupSpinners();
         getCategoriesFromFirestore();
+        // Check and request location permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
     }
 
     private void setupSpinners() {
@@ -192,7 +200,7 @@ public class FeedDetails extends AppCompatActivity {
     DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Professionals").child(uid);
 
 
-    private void saveServiceProvider(String imageUrl, String desc, String selectedCategory, List<String> selectedSubcategories) {
+    private void saveServiceProvider(String imageUrl, String desc, String selectedCategory, List<String> selectedSubcategories,String selectedLocation) {
         // Create a reference to the user's node in the Realtime Database based on the UID
 
 
@@ -202,6 +210,7 @@ public class FeedDetails extends AppCompatActivity {
         professionalData.put("desc", desc);
         professionalData.put("category", selectedCategory);
         professionalData.put("subcategories", selectedSubcategories);
+        professionalData.put("Location",selectedLocation);
 
         userRef.updateChildren(professionalData)
                 .addOnCompleteListener(task -> {
@@ -240,7 +249,7 @@ public class FeedDetails extends AppCompatActivity {
                             // Now, save the imageUrl along with other details in the Realtime Database
                             saveServiceProvider(imageUrl, descEditText.getText().toString().trim(),
                                     categorySpinner.getSelectedItem().toString().trim(),
-                                    getSelectedSubcategories());
+                                    getSelectedSubcategories(),locationEditText.getText().toString().trim());
                         })
                         .addOnFailureListener(e -> {
                             // Handle the failure to upload image URL
@@ -278,14 +287,13 @@ public class FeedDetails extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == LOCATION_PICK_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            double latitude = data.getDoubleExtra("latitude", 0);
-            double longitude = data.getDoubleExtra("longitude", 0);
+            // Retrieve data from the result intent
+            double latitude = data.getDoubleExtra("latitude", 0.0);
+            double longitude = data.getDoubleExtra("longitude", 0.0);
             locationDescription = data.getStringExtra("locationDescription");
 
-            selectedLatitude = latitude;
-            selectedLongitude = longitude;
-            String locationText = String.format("%s, %s, %s", selectedLatitude, selectedLongitude, locationDescription);
-            locationEditText.setText(locationText);
+            // Update the UI with the selected location details
+            locationEditText.setText(locationDescription);
         }
 
         if (requestCode == IMAGE_PICK_REQUEST_CODE && resultCode == RESULT_OK && data != null) {

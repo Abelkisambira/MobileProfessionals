@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class Register extends AppCompatActivity {
     Toolbar backTool;
@@ -77,6 +78,7 @@ public class Register extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
+                                        getFCMToken();
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         if (user != null) {
                                             String uid = user.getUid();
@@ -120,4 +122,29 @@ public class Register extends AppCompatActivity {
             }
         });
     }
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get the FCM token
+                        String fcmToken = task.getResult();
+
+
+
+                        Log.d(TAG, "FCM token: " + fcmToken);
+                        // Store the FCM token in the database under the professional's UID
+                        if (mAuth.getCurrentUser() != null) {
+                            String uid = mAuth.getCurrentUser().getUid();
+                            dbRef.child(uid).child("fcmToken").setValue(fcmToken);
+                        }
+                    }
+                });
+    }
+
 }

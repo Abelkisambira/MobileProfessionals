@@ -2,6 +2,7 @@
 <resources>
     <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
         <item name="android:background">@null</item>
+
     </style>
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     </style>

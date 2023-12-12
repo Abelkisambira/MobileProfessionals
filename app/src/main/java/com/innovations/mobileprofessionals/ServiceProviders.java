@@ -6,20 +6,19 @@ public class ServiceProviders {
     private String category;
     private String speciality;
     private String phoneNumber;
-    private double latitude;
-    private double longitude;
+    private String selectedLocation;
 
-    public ServiceProviders(String desc, String category, String phoneNumber, double selectedLatitude, double selectedLongitude, String imageUrl) {
+
+    public ServiceProviders(String desc, String category, String phoneNumber, String selectedLocation, String imageUrl) {
     }
 
-    public ServiceProviders(String description, String category, String speciality, String phoneNumber, double latitude, double longitude, String imageUrl) {
+    public ServiceProviders(String description, String category, String speciality, String phoneNumber,String selectedLocation,String imageUrl) {
         this.imageUrl = imageUrl;
         this.description = description;
         this.category = category;
         this.speciality = speciality;
         this.phoneNumber = phoneNumber;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.selectedLocation=selectedLocation;
     }
 
 
@@ -55,20 +54,12 @@ public class ServiceProviders {
         this.phoneNumber = phoneNumber;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public String getSelectedLocation() {
+        return selectedLocation;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setSelectedLocation(String selectedLocation) {
+        this.selectedLocation = selectedLocation;
     }
 
     public String getImageUrl() {

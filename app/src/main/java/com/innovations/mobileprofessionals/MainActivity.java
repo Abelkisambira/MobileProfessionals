@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 
 public class MainActivity extends AppCompatActivity {
-    private static int SPLASH_SCREEN = 100;
+    private static int SPLASH_SCREEN = 3000;
     private ProgressBar progressBar;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
