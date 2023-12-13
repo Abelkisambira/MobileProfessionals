@@ -1,9 +1,13 @@
 package com.innovations.mobileprofessionals;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -24,6 +28,7 @@ public class Accoount extends Fragment {
     private EditText emailEditText;
     private EditText passwordEditText;
 
+    private Button editBtn,logoutBtn;
     private DatabaseReference dbRef;
     private FirebaseAuth mAuth;
 
@@ -40,13 +45,32 @@ public class Accoount extends Fragment {
         phoneEditText = view.findViewById(R.id.phoneholder);
         emailEditText = view.findViewById(R.id.email);
         passwordEditText = view.findViewById(R.id.password);
-
+        logoutBtn=view.findViewById(R.id.logout);
         // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference().child("Professionals");
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Log out the current user
+                FirebaseAuth.getInstance().signOut();
+
+                // Clear the user session in shared preferences
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Mobile Professionals", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+
+                // Navigate to the login activity
+                Intent intent = new Intent(getActivity(), Login.class);
+                startActivity(intent);
+                getActivity().finish();  // Close the current activity
+            }
+        });
 
         // Retrieve and fill user data
         retrieveAndFillUserData();
+
 
         return view;
     }

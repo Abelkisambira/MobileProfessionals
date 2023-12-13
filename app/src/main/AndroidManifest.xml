@@ -17,11 +17,20 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:targetApi="31">
         <activity
+            android:name=".Rejected"
+            android:exported="false" />
+        <activity
+            android:name=".Approved"
+            android:exported="false" />
+        <activity
+            android:name=".Pending"
+            android:exported="false" />
+        <activity
             android:name=".FeedDetails"
             android:exported="false" />
-        <activity android:name=".LocationActivity"
-            android:exported="false"
-            />
+        <activity
+            android:name=".LocationActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

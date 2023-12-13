@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -38,6 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 public class FeedDetails extends AppCompatActivity {
+
+
+    Toolbar backTool;
 
     private EditText descEditText, locationEditText;
     private Spinner categorySpinner;
@@ -81,6 +85,20 @@ public class FeedDetails extends AppCompatActivity {
 
             }
         });
+        backTool=findViewById(R.id.back);
+        setSupportActionBar(backTool);
+
+        // Enable the back arrow
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        backTool.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
 
         db = FirebaseFirestore.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();

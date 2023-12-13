@@ -1,64 +1,87 @@
 package com.innovations.mobileprofessionals;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link MyBookings#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MyBookings extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private DatabaseReference databaseReference;
+    private FirebaseUser currentUser;
+    private List<Booking> bookingsList;
+    private BookingsAdapter bookingsAdapter;
 
     public MyBookings() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MyBookings.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MyBookings newInstance(String param1, String param2) {
-        MyBookings fragment = new MyBookings();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_bookings, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_bookings, container, false);
+
+        // Initialize Firebase
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        currentUser = firebaseAuth.getCurrentUser();
+
+        // Initialize UI components
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewBookings);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        bookingsList = new ArrayList<>();
+        bookingsAdapter = new BookingsAdapter(bookingsList);
+        recyclerView.setAdapter(bookingsAdapter);
+
+        // Load bookings data
+        loadBookingsDataForProfessional();
+
+        return view;
+    }
+
+    private void loadBookingsDataForProfessional() {
+        if (currentUser != null) {
+            String professionalId = currentUser.getUid();
+
+            DatabaseReference professionalBookingRef = databaseReference.child("professional_bookings").child(professionalId);
+
+            professionalBookingRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    bookingsList.clear();
+
+                    for (DataSnapshot bookingSnapshot : dataSnapshot.getChildren()) {
+                        Booking booking = bookingSnapshot.getValue(Booking.class);
+                        if (booking != null) {
+                            bookingsList.add(booking);
+                        }
+                    }
+
+                    bookingsAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Handle error
+                    Toast.makeText(requireContext(), "Database Error", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }
