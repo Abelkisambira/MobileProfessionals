@@ -11,6 +11,11 @@
         android:icon="@drawable/baseline_book_online_24"
         android:visible="true"
         />
+    <item android:title="Chats"
+        android:id="@+id/chats"
+        android:icon="@drawable/baseline_chat_24"
+        android:visible="true"
+        />
 
 
     <item android:title="Account"

@@ -1,9 +1,14 @@
 package com.innovations.mobileprofessionals;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 public class Home extends Fragment {
     private EditText nameEditText;
     private DatabaseReference usersRef;
+    private CardView pending,cancel,edit,logout;
     public Home() {
         // Required empty public constructor
     }
@@ -33,6 +39,89 @@ public class Home extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
         nameEditText = rootView.findViewById(R.id.name);
+        pending=rootView.findViewById(R.id.pendingCard);
+        cancel=rootView.findViewById(R.id.cancelCard);
+        edit=rootView.findViewById(R.id.editCard);
+        logout=rootView.findViewById(R.id.logoutCard);
+        pending.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Replace the current fragment with MyBookings fragment
+                FragmentManager fragmentManager = getParentFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.bottom_nav_fragment_container, new MyBookings())
+                        .addToBackStack(null)  // Optional: Adds the transaction to the back stack
+                        .commit();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Replace the current fragment with MyBookings fragment
+                FragmentManager fragmentManager = getParentFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.bottom_nav_fragment_container, new MyBookings())
+                        .addToBackStack(null)  // Optional: Adds the transaction to the back stack
+                        .commit();
+            }
+        });
+
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Replace the current fragment with Accoount fragment
+                FragmentManager fragmentManager = getParentFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.bottom_nav_fragment_container, new Accoount())
+                        .addToBackStack(null)  // Optional: Adds the transaction to the back stack
+                        .commit();
+            }
+        });
+
+//
+//
+//        pending.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Intent intent= new Intent(getContext(),MyBookings.class);
+//                        startActivity(intent);
+//                    }
+//                });
+//        cancel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent= new Intent(getContext(), MyBookings.class);
+//                startActivity(intent);
+//            }
+//        });
+//        edit.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent= new Intent(getActivity(), Accoount.class);
+//                startActivity(intent);
+//            }
+//        });
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Log out the current user
+                FirebaseAuth.getInstance().signOut();
+
+                // Clear the user session in shared preferences
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Mobile Professionals", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+
+                // Navigate to the login activity
+                Intent intent = new Intent(getActivity(), Login.class);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        });
+
+
 
         // Initialize the database reference
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -41,9 +130,9 @@ public class Home extends Fragment {
         // Get the current user's ID from Firebase Authentication
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            String patientId = currentUser.getUid();
+            String professionalId = currentUser.getUid();
 
-            usersRef.child(patientId).addListenerForSingleValueEvent(new ValueEventListener() {
+            usersRef.child(professionalId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {

@@ -3,77 +3,115 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pending Bookings"
+        android:id="@+id/mybookings"
+        android:text="My Bookings"
         android:textAlignment="textStart"
         android:layout_marginLeft="30dp"
         android:textStyle="bold"
-        android:layout_marginTop="50dp"
-        android:textSize="25dp"
-        />
+        android:layout_marginTop="55dp"
+        android:textSize="25dp"/>
+    <!-- Add TextViews for displaying "No Pending Bookings," "No Approved Bookings," and "No Cancelled Bookings" -->
+    <TextView
+        android:id="@+id/noPendingTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Pending Bookings"
+        android:layout_below="@id/buttons"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/noApprovedTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Approved Bookings"
+        android:layout_below="@id/buttons"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/noCancelledTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Cancelled Bookings"
+        android:layout_below="@id/buttons"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewBookings"
         android:layout_width="wrap_content"
-        android:layout_height="510dp"
-        android:padding="16dp"
+        android:layout_height="480dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:layout_marginTop="100dp"
         android:scrollbars="vertical" />
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="500dp"
+        android:layout_marginTop="19dp"
         android:id="@+id/buttons"
         android:layout_below="@+id/recyclerViewBookings"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
         app:cardUseCompatPadding="true"
-        android:layout_rowWeight="0"
+        android:layout_rowWeight="1"
         android:layout_column="0"
         android:layout_columnWeight="1">
-
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"
             android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/pendingBtn"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textAllCaps="false"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/button"
+                android:textColor="@color/white"
+                android:elevation="10dp"
+                android:textStyle="bold"
+                android:textSize="18dp"/>
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/approvedBtn"
-                android:layout_width="130dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="Approved"
                 android:textAllCaps="false"
-                android:layout_marginRight="70dp"
+                android:layout_marginEnd="20dp"
                 android:background="@drawable/button"
                 android:textColor="@color/white"
-                android:layout_marginBottom="10dp"
                 android:elevation="10dp"
                 android:textStyle="bold"
-                android:textSize="20dp"
-                />
+                android:textSize="18dp"/>
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/cancelledBtn"
-                android:layout_width="130dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="Cancelled"
                 android:textAllCaps="false"
+                android:layout_marginEnd="10dp"
                 android:background="@drawable/button"
                 android:textColor="@color/white"
-                android:layout_marginBottom="10dp"
                 android:elevation="10dp"
                 android:textStyle="bold"
-                android:textSize="20dp"
-                />
-
-
-
-
+                android:textSize="18dp"/>
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
+
 
 </RelativeLayout>

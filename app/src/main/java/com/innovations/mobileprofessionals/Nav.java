@@ -15,6 +15,7 @@ public class Nav extends AppCompatActivity {
         setContentView(R.layout.activity_nav);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        replaceFragment(new Home());
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemID = item.getItemId();
@@ -24,6 +25,9 @@ public class Nav extends AppCompatActivity {
                 replaceFragment(new MyBookings());
             } else if (itemID == R.id.account) {
                 replaceFragment(new Accoount());
+            }
+            else if (itemID == R.id.chats) {
+                replaceFragment(new EmployerListFragment());
             }
             return true;
         });

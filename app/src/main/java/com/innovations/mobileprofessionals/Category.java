@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.List;
 
 public class Category {
+    private String id;
     private String name;
     private List<Subcategory> subcategories;
 
@@ -14,7 +15,8 @@ public class Category {
         // Required empty public constructor for Firestore
     }
 
-    public Category(String name, List<Subcategory> subcategories) {
+    public Category(String id,String name, List<Subcategory> subcategories) {
+        this.id=id;
         this.name = name;
         this.subcategories = subcategories;
     }
@@ -29,7 +31,7 @@ public class Category {
 
     public List<Subcategory> getSubcategories() {
         if (subcategories == null) {
-            return new ArrayList<>(); // Initialize subcategories to an empty list if null
+            return new ArrayList<>();
         }
         return subcategories;
     }
@@ -37,5 +39,12 @@ public class Category {
     public void setSubcategories(List<Subcategory> subcategories) {
         this.subcategories = subcategories;
     }
-}
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+}
