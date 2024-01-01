@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public class Chatting extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private DatabaseReference messagesRef;
     private String username;
+    private TextView name;
 
     private List<ChatMessage> chatMessages = new ArrayList<>();
     private EditText messageEditText;
@@ -61,6 +63,7 @@ public class Chatting extends AppCompatActivity {
 
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
+        name= findViewById(R.id.other_username);
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -85,7 +88,7 @@ public class Chatting extends AppCompatActivity {
             employerID = intent.getStringExtra("employerID");
             employerName = intent.getStringExtra("employerName");
 
-
+            name.setText(employerName);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -136,7 +139,7 @@ public class Chatting extends AppCompatActivity {
 //            String professionalId = getIntent().getStringExtra("professionalId");
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
             FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-            String professionalName = currentUser.getDisplayName();
+//            String professionalName = currentUser.getDisplayName();
 
             Timestamp timestamp = Timestamp.now();
             Date timestampDate = new Date(timestamp.getSeconds() * 1000);
@@ -149,8 +152,9 @@ public class Chatting extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         String professionalFCMToken = dataSnapshot.child("fcmToken").getValue(String.class);
+                        String professionalName = dataSnapshot.child("username").getValue(String.class);
 
-                        if (professionalFCMToken != null && !professionalFCMToken.isEmpty()) {
+                        if (professionalFCMToken != null && !professionalFCMToken.isEmpty() && professionalName !=null && !professionalName.isEmpty()) {
                             String messageKey = professionalsRef.push().getKey();
                             Map<String, String> data = new HashMap<>();
                             data.put("professionalName", professionalName);

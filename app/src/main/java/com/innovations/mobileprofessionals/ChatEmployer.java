@@ -6,7 +6,7 @@ public class ChatEmployer {
     private String employerID,professionalID;
     private String employerName;
     private String employerProfilePicUrl;
-    private String message;
+    private String message,timestampString;
     private boolean sentByProfessional;
     private  Timestamp timestamp;
 
@@ -20,7 +20,7 @@ public class ChatEmployer {
         this.employerProfilePicUrl = employerProfilePicUrl;
         this.message = message;
         this.sentByProfessional=sentByProfessional;
-//        this.timestamp = timestamp;
+        this.timestamp = timestamp;
     }
 
 
@@ -71,5 +71,9 @@ public class ChatEmployer {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getTimestampString() {
+        return timestampString;
     }
 }

@@ -11,7 +11,8 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingStart="8dp"
-        android:paddingEnd="8dp"
+        android:paddingEnd="20dp"
+        android:layout_marginLeft="20dp"
         android:paddingTop="4dp"
         android:id="@+id/employer_username"/>
 
