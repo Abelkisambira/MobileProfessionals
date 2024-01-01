@@ -18,7 +18,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerViewChats"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
@@ -33,21 +33,21 @@
         android:background="@android:color/white"
         android:padding="8dp">
 
-        <EditText
-            android:id="@+id/messageEditText"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:hint="Type a message"/>
+<!--        <EditText-->
+<!--            android:id="@+id/messageEditText1"-->
+<!--            android:layout_width="300dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_marginEnd="8dp"-->
+<!--            android:hint="Type a message"/>-->
 
-        <ImageButton
-            android:id="@+id/sendButton"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@color/green"
-            android:layout_toRightOf="@+id/messageEditText"
-            android:src="@drawable/baseline_send_24"/>
+<!--        <ImageButton-->
+<!--            android:id="@+id/sendButton"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:background="@color/green"-->
+<!--            android:layout_toRightOf="@+id/messageEditText1"-->
+<!--            android:src="@drawable/baseline_send_24"/>-->
     </RelativeLayout>
 
 </RelativeLayout>

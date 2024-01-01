@@ -5,4 +5,7 @@
     <color name="cyan">#9ACEEB</color>
     <color name="lily">#DB8780</color>
     <color name="green" >#77BC3F</color>
+    <color name="lightgrey">#C0C0C0</color>
+    <color name="off_white">#FAFAFA</color>
+
 </resources>

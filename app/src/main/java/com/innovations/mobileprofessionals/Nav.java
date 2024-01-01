@@ -27,7 +27,7 @@ public class Nav extends AppCompatActivity {
                 replaceFragment(new Accoount());
             }
             else if (itemID == R.id.chats) {
-                replaceFragment(new EmployerListFragment());
+                replaceFragment(new Chats());
             }
             return true;
         });

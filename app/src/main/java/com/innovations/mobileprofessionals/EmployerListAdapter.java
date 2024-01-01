@@ -1,65 +1,57 @@
 package com.innovations.mobileprofessionals;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
-public class EmployerListAdapter extends RecyclerView.Adapter<EmployerListAdapter.EmployerViewHolder> {
+public class EmployerListAdapter extends ArrayAdapter<ChatEmployer> {
 
-    private List<String> employerIds;
     private OnEmployerClickListener onEmployerClickListener;
 
-    public EmployerListAdapter(List<String> employerIds, OnEmployerClickListener listener) {
-        this.employerIds = employerIds;
+    public EmployerListAdapter(Context context, int resource, List<ChatEmployer> employers, OnEmployerClickListener listener) {
+        // Constructor implementation
+            super(context, resource, employers);
         this.onEmployerClickListener = listener;
     }
 
     @NonNull
     @Override
-    public EmployerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_employer, parent, false);
-        return new EmployerViewHolder(view);
-    }
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View view = convertView;
+        if (view == null) {
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            view = inflater.inflate(R.layout.item, parent, false);
+        }
 
-    @Override
-    public void onBindViewHolder(@NonNull EmployerViewHolder holder, int position) {
-        String employerId = employerIds.get(position);
-        holder.bind(employerId);
-    }
+        ChatEmployer employer = getItem(position);
+        if (employer != null) {
+            TextView nameTextView = view.findViewById(R.id.user_name_text);
+            TextView messageTextView = view.findViewById(R.id.last_message_text);
+//            ImageView profilePic = view.findViewById(R.id.profile_pic_image_view);
 
-    @Override
-    public int getItemCount() {
-        return employerIds.size();
-    }
+            nameTextView.setText(employer.getEmployerName());
+            messageTextView.setText(employer.getMessage());
 
-    public class EmployerViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView employerNameTextView;
-
-        public EmployerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            employerNameTextView = itemView.findViewById(R.id.employerNameTextView);
-
-            itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    String employerId = employerIds.get(position);
-                    onEmployerClickListener.onEmployerClick(employerId);
+            view.setOnClickListener(v -> {
+                if (onEmployerClickListener != null) {
+                    onEmployerClickListener.onEmployerClick(employer);
                 }
             });
         }
 
-        public void bind(String employerId) {
-            // You can customize this method to display employer details (e.g., name) based on the employerId
-            employerNameTextView.setText("Employer ID: " + employerId);
-        }
+        return view;
     }
 
     public interface OnEmployerClickListener {
-        void onEmployerClick(String employerId);
+        void onEmployerClick(ChatEmployer employer);
     }
 }

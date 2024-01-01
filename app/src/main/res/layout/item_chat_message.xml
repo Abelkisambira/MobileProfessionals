@@ -6,25 +6,37 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/messageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="4dp"
+        android:id="@+id/employer_username"/>
+
+
+    <TextView
+        android:id="@+id/employerMessageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="500dp"
+        android:textSize="16sp"
+        android:padding="30dp"
+        android:backgroundTint="@color/lightgrey"
+        android:background="@drawable/baseline_chat_bubble_24"
+       android:textColor="#FFFFFF" />
+    <TextView
+        android:id="@+id/professionalMessageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="500dp"
         android:padding="30dp"
         android:textSize="16sp"
+        android:textColor="@color/white"
+        android:layout_marginStart="200dp"
         android:background="@drawable/baseline_chat_bubble_24"/>
-<!--    &lt;!&ndash; Replace this with your actual layout for each message item &ndash;&gt;-->
-<!--    <TextView xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--        android:id="@+id/messageTextView"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:padding="8dp"-->
-<!--        android:maxWidth="240dp"-->
-<!--        android:background="@drawable/bg_message"-->
-<!--        android:layout_marginTop="4dp"-->
-<!--        android:layout_marginBottom="4dp"-->
-<!--        android:layout_marginEnd="8dp"-->
-<!--        android:layout_marginStart="8dp"/>-->
+
 
 
 </LinearLayout>

@@ -10,12 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
+public class ChatEmployerAdapter extends RecyclerView.Adapter<ChatEmployerAdapter.ViewHolder> {
 
-    private List<ChatMessage> employerList;
+    private List<ChatEmployer> employerList;
     private String professionalID;
 
-    public ChatAdapter(List<ChatMessage> employerList,String professionalID) {
+    public ChatEmployerAdapter(List<ChatEmployer> employerList,String professionalID) {
         this.employerList = employerList;
         this.professionalID=professionalID;
     }
@@ -30,16 +30,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ChatMessage chatMessage = employerList.get(position);
+        ChatEmployer chatEmployer = employerList.get(position);
+        holder.employerNameTextView.setText(chatEmployer.getEmployerName());
 
-        if (!chatMessage.isSentByProfessional()) {
+        if (chatEmployer.isSentByProfessional()) {
             // Customize the appearance of the professional's message
             holder.employerMessageTextView.setVisibility(View.GONE);
             holder.professionalMessageTextView.setVisibility(View.VISIBLE);
             holder.employerNameTextView.setVisibility(View.GONE);
 
-            holder.professionalMessageTextView.setText(chatMessage.getMessage());
-
+            holder.professionalMessageTextView.setText(chatEmployer.getMessage());
 
         } else {
             // Customize the appearance of the employer's message
@@ -47,8 +47,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             holder.employerMessageTextView.setVisibility(View.VISIBLE);
             holder.employerNameTextView.setVisibility(View.VISIBLE);
 
-            holder.employerNameTextView.setText(chatMessage.getEmployerName());
-            holder.employerMessageTextView.setText(chatMessage.getMessage());
+            holder.employerMessageTextView.setText(chatEmployer.getMessage());
 
         }
     }

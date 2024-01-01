@@ -1,56 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/back"
+    <ListView
+        android:layout_marginTop="80dp"
+        android:id="@+id/employerListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/green"
-        app:title="Chat with your employer"
-        app:titleTextColor="@color/white"
-        android:textAlignment="center"
-        android:gravity="center"
-        app:navigationIcon="@drawable/baseline_arrow_back_24" />
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp"
-            android:layout_below="@+id/back"
-            android:layout_above="@+id/messageInputLayout"/>
-
-    <RelativeLayout
-        android:id="@+id/messageInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
-        android:padding="8dp">
-
-        <EditText
-            android:id="@+id/messageEditText"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:hint="Type a message"/>
-
-        <ImageButton
-            android:id="@+id/sendButton"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@color/green"
-            android:layout_toRightOf="@+id/messageEditText"
-            android:src="@drawable/baseline_send_24"/>
-    </RelativeLayout>
-
-
+        android:layout_height="match_parent"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:padding="8dp" />
 
 </RelativeLayout>
