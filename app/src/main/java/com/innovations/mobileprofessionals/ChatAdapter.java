@@ -33,6 +33,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         ChatMessage chatMessage = employerList.get(position);
 
         if (!chatMessage.isSentByProfessional()) {
+            // Customize the appearance of the employer's message
+            holder.professionalMessageTextView.setVisibility(View.GONE);
+            holder.employerMessageTextView.setVisibility(View.VISIBLE);
+            holder.employerNameTextView.setVisibility(View.VISIBLE);
+
+            holder.employerNameTextView.setText(chatMessage.getEmployerName());
+            holder.employerMessageTextView.setText(chatMessage.getMessage());
+
+        } else {
+
             // Customize the appearance of the professional's message
             holder.employerMessageTextView.setVisibility(View.GONE);
             holder.professionalMessageTextView.setVisibility(View.VISIBLE);
@@ -41,14 +51,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             holder.professionalMessageTextView.setText(chatMessage.getMessage());
 
 
-        } else {
-            // Customize the appearance of the employer's message
-            holder.professionalMessageTextView.setVisibility(View.GONE);
-            holder.employerMessageTextView.setVisibility(View.VISIBLE);
-            holder.employerNameTextView.setVisibility(View.VISIBLE);
-
-            holder.employerNameTextView.setText(chatMessage.getEmployerName());
-            holder.employerMessageTextView.setText(chatMessage.getMessage());
 
         }
     }

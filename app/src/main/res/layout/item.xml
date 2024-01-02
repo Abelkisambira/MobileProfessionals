@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/edit_text_rounded_corner"
     android:layout_marginTop="40dp"
-    android:padding="20dp"
+    android:layout_marginBottom="40dp"
     android:elevation="2dp">
 
     <include layout="@layout/profile_pic_view"

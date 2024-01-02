@@ -39,6 +39,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+
 public class Chatting extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -63,7 +64,7 @@ public class Chatting extends AppCompatActivity {
 
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
-        name= findViewById(R.id.other_username);
+        name = findViewById(R.id.other_username);
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -154,7 +155,7 @@ public class Chatting extends AppCompatActivity {
                         String professionalFCMToken = dataSnapshot.child("fcmToken").getValue(String.class);
                         String professionalName = dataSnapshot.child("username").getValue(String.class);
 
-                        if (professionalFCMToken != null && !professionalFCMToken.isEmpty() && professionalName !=null && !professionalName.isEmpty()) {
+                        if (professionalFCMToken != null && !professionalFCMToken.isEmpty() && professionalName != null && !professionalName.isEmpty()) {
                             String messageKey = professionalsRef.push().getKey();
                             Map<String, String> data = new HashMap<>();
                             data.put("professionalName", professionalName);
@@ -234,12 +235,13 @@ public class Chatting extends AppCompatActivity {
             }
         });
     }
-    void callAPI(JSONObject jsonObject){
+
+    void callAPI(JSONObject jsonObject) {
         okhttp3.MediaType JSON = MediaType.get("application/json");
 
         OkHttpClient client = new OkHttpClient();
-        String url="https://fcm.googleapis.com/fcm/send";
-        RequestBody body = RequestBody.create(jsonObject.toString(),JSON);
+        String url = "https://fcm.googleapis.com/fcm/send";
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
         okhttp3.Request Request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -286,14 +288,14 @@ public class Chatting extends AppCompatActivity {
 
         // Check if the message is relevant to the current chat
 //        if (employerID != null && professionalID != null && messageText != null) {
-            boolean isSentByCurrentUser = checkIfSentByCurrentUser(professionalID);
-            String professionalName = getProfessionalName();
+        boolean isSentByCurrentUser = checkIfSentByCurrentUser(professionalID);
+        String professionalName = getProfessionalName();
 
-            // Create a ChatEmployer object
-            ChatMessage chatMessage = new ChatMessage(messageText, professionalName, employerName, professionalID, employerID, timestamp, isSentByCurrentUser);
+        // Create a ChatEmployer object
+        ChatMessage chatMessage = new ChatMessage(messageText, professionalName, employerName, professionalID, employerID, timestamp, isSentByCurrentUser);
 
-            // Add the message to your UI
-            addMessage(chatMessage);
+        // Add the message to your UI
+        addMessage(chatMessage);
 //        }
 //        simulateIncomingMessage();
     }
@@ -351,3 +353,4 @@ public class Chatting extends AppCompatActivity {
         }
     }
 }
+
